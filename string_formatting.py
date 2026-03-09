@@ -49,6 +49,7 @@ print("String format with keyword args and unpacking:", sentence)
 for i in range(1, 11):
     sentence = "The value is {:02}".format(i) # Add formatting to placeholders with colon. :02 zero pads to 2 digits
     print(sentence)
+print("Z filled:", "3".zfill(2)) # zfill also worksS
     
 pi = 3.14159265
 sentence = "Pi is equal to {:.2f}".format(pi) # :.2f means 2 decimal places
