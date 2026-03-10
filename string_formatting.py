@@ -75,5 +75,15 @@ sentence = "{0:%B %d, %Y} fell on a {0:%A} and was the {0:%j} day of the year".f
 print(sentence)
 
 # f strings for simpler formatting
-sentence = f"My name is {person['name']} and I am {person['age']} years old."
+sentence = f"My name is {person['name'].upper()} and I am {person['age']} years old." # We can also do functions in f-strings
 print("F string:", sentence)
+
+for i in range(1, 11):
+    sentence = f"The value is {i:02}" # We can also format in f-strings
+    print(sentence)
+    
+sentence = f"Pi is equal to {pi:.2f}"
+print(sentence)
+
+sentence = f"Jenn has a birthday on {my_date}, or {my_date:%B %d, %Y}" # What we can do in .format we can also do in f-strings
+print(sentence)

@@ -17,6 +17,7 @@ print(sys.path) # This is the list of locations Python looks when it searches fo
 # print(sys.path) 
 
 # Better to change the next spot Python looks for modules after the current directory, which is the PYTHONPATH environment variable. Edit .bashrc for Unix terminals, and Windows Environment Variables for CMD
+# If we are having trouble running the python command itself, update the PATH environment variable to include the path to your Python installation. If we have multiple version of Python, the first one found wins
 # TODO: .bashrc vs .bash_profile
 
 import random, math, datetime, calendar, os # from standard library
