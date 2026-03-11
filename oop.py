@@ -31,15 +31,32 @@ class Employee_new:
         self.first = first # Same as above emp1.first = "Mina", but now we do it in constructor for each employee
         self.last = last # don't need to be same name. Could be self.lname = last
         self.pay = pay
-        self.email = f"{first}.{last}@company.com"
+        # self.email = f"{first}.{last}@company.com"
         
         Employee_new.num_employees += 1 # Makes no sense to use self here. This is a general class variable
+        
+    @property
+    def email(self):
+        return f"{self.first}.{self.last}@company.com"
         
     def fullname_error():
         return f"{self.first} {self.last}" # Must pass in self
     
     def fullname(self):
         return f"{self.first} {self.last}"
+    
+    @property # required for setter and deleter
+    def fullname_new(self):
+        return f"{self.first} {self.last}"
+    
+    @fullname_new.setter
+    def fullname_new(self, name):
+        self.first, self.last = name.split()
+        
+    @fullname_new.deleter
+    def fullname_new(self):
+        print("Delete Name!")
+        self.first, self.last = None, None
     
     def apply_raise(self):
         # self.pay = int(self.pay * 1.04)
@@ -217,3 +234,16 @@ print(len(emp1))
 # See https://docs.python.org/3/reference/datamodel.html#emulating-numeric-types for list
 
 # TODO: What if we have __len__ and global or class-level len() too? LEGB
+
+# @property decorator gives our class attributes getter, setter, and delter functionality. We can define a method, but use it as an attribute
+emp1.first = "Mike"
+print(emp1.first)
+print(emp1.email) # Still Mina.Gawargious@company.com since email was set in the constructor. This is before we added @property to email
+print(emp1.fullname()) # Mina Gawargious since fullname() gets the first and last names, vs. relying on what was already set before like email does. For backwards compatibility, we can't have an email() method if people are already using email attribute
+
+emp1.fullname_new = "New User" # When we do this, we want it to set first, last, and email. Right now, that's invalid and we get AttributeError: can't set attribute 'fullname_new'. Until we define fullname_new.setter, which defines behavior once we do this
+print(emp1.first)
+print(emp1.last)
+print(emp1.email)
+
+del emp1.fullname_new
