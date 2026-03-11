@@ -63,6 +63,21 @@ class Employee_new:
     @staticmethod
     def isworkday(day):
         return not (day.weekday() == 5 or day.weekday() == 6) # 5 or 6 is Sat or Sun, so if that's true, return false
+    
+    # __repr__ is an unambiguous representation of the object, used for debugging, logging, and other dev stuff, intended for other devs. Good rule of thumb is to display something that allows you to copy it back into Python code to recreate the object
+    def __repr__(self):
+        return f'Employee("{self.first}", "{self.last}", {self.pay})'
+    
+    # __str__ is intended to be a readable representation of an object, used to display to end user. If we don't defined __str__, it defaults to __repr__. 
+    def __str__(self):
+        return f"{self.fullname()} - {self.email}"
+    
+    def __add__(self, other):
+        return self.pay + other.pay
+    
+    def __len__(self):
+        return len(self.fullname())
+        # We can return NotImplemented if we don't know how to handle an operation. This is preferable to throwing an error since other object might know how to handle it
         
 emp1 = Employee_new("Mina", "Gawargious", 100000) # When creating new Employee_new object, we can leave off self since it's passed automatically
 emp2 = Employee_new("Test", "User", 50000) 
@@ -180,3 +195,25 @@ print("issubclass(Manager, Manager) =", issubclass(Manager, Manager)) # True
 print("issubclass(Manager, Developer) =", issubclass(Manager, Developer)) # False
 print("issubclass(Manager, Employee_new) =", issubclass(Manager, Employee_new)) # True
 print("issubclass(Employee_new, Manager) =", issubclass(Employee_new, Manager)) # False
+
+# Special methods/magic methods (always surrounded by __, so they're called dunder methods) allow us to emulate some built-in behavior within Python, and how we implement operator overloading. Operator overloading allows the same operator to work in differnet ways depending on data type, like 1+2 = 3 but "a" + "b" = "ab". The + behaves differently based on what objects we're working with
+print(emp1) # <__main__.Employee_new object at 0x7b09689f78e0> before re-writing __repr__ (or __str__ if we defined that since this technically uses __str__ with __repr__ as a fallback if we didn't define it)
+print(repr(emp1))
+print(str(emp1))
+
+# repr(emp1) = emp1.__repr__() and str(emp1) = emp1.__str__()
+
+print(1 + 2)
+print(int.__add__(1,2))
+# print(emp1 + emp2) # TypeError: unsupported operand type(s) for +: 'Employee_new' and 'Employee_new' before we define __add__
+print(f"emp1 + emp2 = {emp1.pay} + {emp2.pay} =", emp1+emp2)
+
+print(len("test"))
+print("test".__len__()) # same as above
+
+# print(len(emp1)) # TypeError: object of type 'Employee_new' has no len() before we define __len__()
+print(len(emp1))
+
+# See https://docs.python.org/3/reference/datamodel.html#emulating-numeric-types for list
+
+# TODO: What if we have __len__ and global or class-level len() too? LEGB
