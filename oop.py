@@ -123,3 +123,60 @@ print(Employee_new.num_employees)
 import datetime
 my_date = datetime.date(2016, 7, 10)
 print(f"Employee_new.isworkday(my_date) =", Employee_new.isworkday(my_date))
+
+# Class inheritance allows us to inherit attributes and methods of a parent class and allow us to create subclasses with the functionality of a parent class
+# Developer and manager subclasses will have names, emails, and pay, so we can inherit from Employee_new class
+class Developer(Employee_new): # Inherit from Employee_new class
+    raise_amount = 1.5 # In the method resolution order, we would encounter 1.5 first
+    
+    def __init__(self, first, last, pay, programming_language):
+        super().__init__(first, last, pay) # Let superclass handle first, last, and pay
+        # Employee_new.__init__(self, first, last, pay) # Same as above for single inheritance, but super() is still cleaner
+        self.programming_language = programming_language
+
+dev_1 = Developer("Mina", "Gawargious", 100000, "Python") # Python looked at Developer class for constructor, did not find it, then walked up chain of inheritance until if found what it's looking for. Chain is called method resolution order, which is order where Python looks for attributes and methods
+dev_2 = Developer("Test", "Employee", 60000, "Java")
+
+print(isinstance(dev_1, Employee_new), isinstance(dev_1, Developer)) # True True
+print(dev_1.pay)
+dev_1.apply_raise()
+print(dev_1.pay)
+print(dev_1.programming_language)
+
+# print(help(Developer)) # Very useful
+
+class Manager(Employee_new):
+    def __init__(self,  first, last, pay, employees=None): # We don't pass in [] as default arg because we don't want to pass in a mutable argument like list or dict as a default arg
+        super().__init__(first, last, pay)
+        self.employees = employees if employees else []
+        
+    def add_emp(self, emp):
+        if emp not in self.employees:
+            self.employees.append(emp)
+            
+    def remove_emp(self, emp):
+        if emp in self.employees:
+            self.employees.remove(emp)
+            
+    def print_employees(self):
+        for employee in self.employees:
+            print("-->", employee.fullname())
+            
+mgr_1 = Manager("Sue", "Smith", 90000, [dev_1])
+print(mgr_1.email)
+mgr_1.print_employees()
+mgr_1.add_emp(dev_2)
+mgr_1.print_employees()
+mgr_1.remove_emp(dev_1)
+mgr_1.print_employees()
+
+# isinstance will tell us if an object is an instance of a class
+print("isinstance(mgr_1, Manager) =", isinstance(mgr_1, Manager)) # True
+print("isinstance(mgr_1, Developer) =", isinstance(mgr_1, Developer)) # False
+print("isinstance(mgr_1, Employee_new) =", isinstance(mgr_1, Employee_new)) # True
+
+# issubclass will tell us if an object is an instance of a class
+print("issubclass(Manager, Manager) =", issubclass(Manager, Manager)) # True
+print("issubclass(Manager, Developer) =", issubclass(Manager, Developer)) # False
+print("issubclass(Manager, Employee_new) =", issubclass(Manager, Employee_new)) # True
+print("issubclass(Employee_new, Manager) =", issubclass(Employee_new, Manager)) # False
