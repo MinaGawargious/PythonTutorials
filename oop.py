@@ -247,3 +247,6 @@ print(emp1.last)
 print(emp1.email)
 
 del emp1.fullname_new
+
+
+# __repr__ and __str__ are similar but with key differences. __repr__ is unambiguous, and attempts to be evaluable. So it would be legal code to pass to Python. __str__ on the other hand is intended to be readable. __repr__ is really for devs, __str__ is for end user
