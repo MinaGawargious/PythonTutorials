@@ -36,7 +36,7 @@ class Employee_new:
         Employee_new.num_employees += 1 # Makes no sense to use self here. This is a general class variable
         
     def fullname_error():
-        return f"{self.first} {self.last}"
+        return f"{self.first} {self.last}" # Must pass in self
     
     def fullname(self):
         return f"{self.first} {self.last}"
@@ -46,6 +46,23 @@ class Employee_new:
         # self.pay = int(self.pay * raise_amount) # We still need to access class variables through class itself or instance of the class. This raises a NameError: name 'raise_amount' is not defined
         self.pay = int(self.pay * self.raise_amount)
         # self.pay = int(self.pay * Employee_new.raise_amount) # same as above, so long as we don't create a raise_amount for a specific instance. Using self allows any subclass to also override it if they wanted to
+        
+    # Normal methods take in self. Class methods do not. Indicate classmethods with decorator
+    @classmethod # Receive CLASS as first argument, not self
+    def set_raise_amount(cls, amount):
+        cls.raise_amount = amount
+        
+    @classmethod
+    def from_string(cls, emp_str): # alternative consructor
+        first, last, pay = emp_str.split("-")
+        return cls(first, last, pay)
+    
+    # regular instance methods take in instance self implicitly, class methods take in class cls implcitly, and static methods don't take in anything automatically. They're just like normal functions, but we include them in our class because they have some logical connection to our clas
+    
+    # has logical connection to our class, but doesn't depend on any instance or class variable. If we don't access instance or class within method, that's a giveaway that it's a static method
+    @staticmethod
+    def isworkday(day):
+        return not (day.weekday() == 5 or day.weekday() == 6) # 5 or 6 is Sat or Sun, so if that's true, return false
         
 emp1 = Employee_new("Mina", "Gawargious", 100000) # When creating new Employee_new object, we can leave off self since it's passed automatically
 emp2 = Employee_new("Test", "User", 50000) 
@@ -84,3 +101,25 @@ print("emp2.__dict__ =", emp2.__dict__) # no raise_amount. use class's
 print("Employee_new.__dict__ =", Employee_new.__dict__) # raise_amount = 1.05
 
 print(Employee_new.num_employees) # 2
+
+emp1.set_raise_amount(1.1) # Automatically passes in class implcitly. Frowned upon
+print("emp1.raise_amount =", emp1.raise_amount) # 1.06 (from its own namespace)
+print("emp2.raise_amount =", emp2.raise_amount) # 1.1 (from Employee_new class)
+print("Employee_new.raise_amount =", Employee_new.raise_amount) # 1.1
+
+Employee_new.set_raise_amount(1.2) # Automatically passes in class implcitly
+print("emp1.raise_amount =", emp1.raise_amount) # 1.06 (from its own namespace)
+print("emp2.raise_amount =", emp2.raise_amount) # 1.2 (from Employee_new class)
+print("Employee_new.raise_amount =", Employee_new.raise_amount) # 1.2
+
+# We can also use class methods as alternative constructors. Say we have employee data in the form of strings and we want to build instances based off that
+emp_str = "John-Doe-70000"
+# Instead of splitting based on - and creating a new employee, we can pass in string DIRECTLY with an alternative constructor
+
+emp3 = Employee_new.from_string(emp_str)
+print(emp3)
+print(Employee_new.num_employees)
+
+import datetime
+my_date = datetime.date(2016, 7, 10)
+print(f"Employee_new.isworkday(my_date) =", Employee_new.isworkday(my_date))
