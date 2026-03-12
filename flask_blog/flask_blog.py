@@ -1,7 +1,12 @@
 # Flask is a good microframeowrk that makes it easy to work with backend web apps
 
-from flask import Flask, render_template, url_for # import Flask class and render_template function. url_for is a function that finds exact locations of routes for us
+from flask import Flask, render_template, url_for, flash, redirect # import Flask class and render_template function. url_for is a function that finds exact locations of routes for us
+from forms import RegistrationForm, LoginForm
 app = Flask(__name__) # app variable is instance of Flask class. Pass in __name__ so Flask knows where to look for templates and static files
+
+# When we use these forms, we need to set a secret key for our app to protect against modifiying cookies and cross-site request forgery attacks
+app.config["SECRET_KEY"] = "67a1d9a6ebd5246597e2c71085d9842b"
+#import secrets; secrets.token_hex(16)
 
 posts = [
     {
@@ -27,6 +32,21 @@ def home():
 @app.route("/about")
 def about():
     return render_template("about.html", title="About Page")
+
+@app.route("/register", methods=["GET", "POST"])
+def registration():
+    # create instance of form we will send to our application
+    form = RegistrationForm()
+    if form.validate_on_submit():
+        flash(f"Account created for {form.username.data}!", "success")  # Add a flash message at the top
+        return redirect(url_for("home"))
+    return render_template("register.html", title="Register", form=form) # We have access to title and form inside our template
+
+@app.route("/login")
+def login():
+    # create instance of form we will send to our application
+    form = LoginForm()
+    return render_template("login.html", title="Login", form=form) # We have access to title and form inside our template
 
 # Before we run app, we need to set environment variable to file we want to be our flask application. Here, export FLASK_APP=flask_blog.py
 # localhost = 127.0.0.1

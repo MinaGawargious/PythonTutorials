@@ -53,6 +53,16 @@
         <div class="col-md-8">
         <!-- container is Bootstrap-specific class that adds some padding and spacing -->
         <!-- We have the common code, and we can create blocks that our child templates can override -->
+         <!-- with_categories lets us get the "success" category -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
             {% block content %}{% endblock %}
         </div>
         <div class="col-md-4">
