@@ -1,4 +1,7 @@
-from models import User, Post # fix if coupled with "from __main__ import db" in models.py
+from flask import render_template, url_for, flash, redirect # import render_template function. url_for is a function that finds exact locations of routes for us
+from flask_blog import app
+from flask_blog.forms import RegistrationForm, LoginForm
+from flask_blog.models import User, Post # fix if coupled with "from __main__ import db" in models.py
 
 posts = [
     {

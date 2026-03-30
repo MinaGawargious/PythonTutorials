@@ -1,5 +1,5 @@
 # from flask_blog import db # ImportError: cannot import name 'User' from partially initialized module 'models' (most likely due to a circular import)
-from __main__ import db # ImportError: cannot import name 'db' from '__main__'
+from flask_blog import db
 from datetime import datetime
 
 # Create database in terminal by doing "from flask_blog import db, app" followed by "with app.app_context(): db.create_all()"
