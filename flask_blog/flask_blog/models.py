@@ -1,9 +1,15 @@
 # from flask_blog import db # ImportError: cannot import name 'User' from partially initialized module 'models' (most likely due to a circular import)
-from flask_blog import db
 from datetime import datetime
+from flask_blog import db, login_manager # We add functionality to our database models, and login_manager handles all the sessions in the background for us
+from flask_login import UserMixin # Gives required attributes and methods of is_authenticated, is_active, is_anonymous, and get_id. We can inherit this class into User vs. doing it ourselves
+
+# This is required to reload the user from the user_id stored in the session
+@login_manager.user_loader # So extension knows this is the function to get a user by id
+def load_user(user_id):
+    return User.query.get(int(user_id))
 
 # Create database in terminal by doing "from flask_blog import db, app" followed by "with app.app_context(): db.create_all()"
-class User(db.Model): # subclass of db.Model
+class User(db.Model, UserMixin): # subclass of db.Model
     # columns to table
     id = db.Column(db.Integer, primary_key = True) # Specify type, and primary_key means unique id for our user assigned automatically.
     username = db.Column(db.String(20), unique=True, nullable=False) # max 20 character string that is unique and required (not nullable) (FIXME: What about min length of 2?)
