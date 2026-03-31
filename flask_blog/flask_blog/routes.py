@@ -9,7 +9,9 @@ from PIL import Image
 @app.route("/") # routes are what we type into browser to go to different pages, like about or contacts. @app.route() decorator handles all the complicated stuff and allows us to write a function that returns information to be shown for this specific route. / is root/home page
 @app.route("/home") # Multiple routes handled by same function is easy. Just add another decorator
 def home():
-    posts = Post.query.all()
+    # Getting all posts all at once is too much data and too slow. Load a page, then have links to next pages at the bottom. We use posts = Post.query.paginate(). Attributes include has_next, has_prev, items, page, per_page, total, etc. per_page is how many results per page. We can pass in a page arg to get a specific page. posts.page is the current page starting at 1. posts.items is the current page's items. posts.total gives total number of posts in all pages
+    page = request.args.get("page", 1, type=int) # Get optional parameter of page. Default to 1. Type is int, causing ValueError if someone passes anything other than int as page number
+    posts = Post.query.order_by(Post.date_posted.desc()).paginate(per_page=5, page=page) # 5 posts per page. Get page by posts.page. Default is 1. 
     # Webpages are more complex than this. Instead of having multi-line string, which has the potential of repeated HTML, we should instead use templates
     return render_template("home.html", posts=posts) # We will now have access to any variables we pass here inside our home.html. So we have access to posts and title
 
@@ -144,6 +146,15 @@ def delete_post(post_id):
     flash("Your post has been deleted!", "success")
     return redirect(url_for("home"))
     
+@app.route("/user/<string:username>")
+def user_posts(username):
+    page = request.args.get("page", 1, type=int)
+    user = User.query.filter_by(username=username).first_or_404() # Get the first user with this username (should be only 1), or return 404
+    # The \ allows us to break down multiple lines into 1 in Python
+    posts = Post.query.filter_by(author=user)\
+        .order_by(Post.date_posted.desc())\
+        .paginate(per_page=5, page=page)
+    return render_template("user_posts.html", posts=posts, user=user)
 
 # Before we run app, we need to set environment variable to file we want to be our flask application. Here, export FLASK_APP=flask_blog.py
 # localhost = 127.0.0.1
