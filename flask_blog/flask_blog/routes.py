@@ -1,29 +1,15 @@
-from flask import render_template, url_for, flash, redirect, request # import render_template function. url_for is a function that finds exact locations of routes for us. The request object from flask lets us access query parameters (from http://localhost:5000/login?next=%2Faccount)
+from flask import render_template, url_for, flash, redirect, request, abort # import render_template function. url_for is a function that finds exact locations of routes for us. The request object from flask lets us access query parameters (from http://localhost:5000/login?next=%2Faccount)
 from flask_blog import app, db, bcrypt
-from flask_blog.forms import RegistrationForm, LoginForm, UpdateAccountForm
+from flask_blog.forms import RegistrationForm, LoginForm, UpdateAccountForm, PostForm
 from flask_blog.models import User, Post # fix if coupled with "from __main__ import db" in models.py
 from flask_login import login_user, logout_user, current_user, login_required
 import secrets, os
 from PIL import Image
 
-posts = [
-    {
-        'author': 'Corey Schafer',
-        'title': 'Blog Post 1',
-        'content': 'First post content',
-        'date_posted': 'April 20, 2018'
-    },
-    {
-        'author': 'Jane Doe',
-        'title': 'Blog Post 2',
-        'content': 'Second post content',
-        'date_posted': 'April 21, 2018'
-    }
-]
-
 @app.route("/") # routes are what we type into browser to go to different pages, like about or contacts. @app.route() decorator handles all the complicated stuff and allows us to write a function that returns information to be shown for this specific route. / is root/home page
 @app.route("/home") # Multiple routes handled by same function is easy. Just add another decorator
 def home():
+    posts = Post.query.all()
     # Webpages are more complex than this. Instead of having multi-line string, which has the potential of repeated HTML, we should instead use templates
     return render_template("home.html", posts=posts) # We will now have access to any variables we pass here inside our home.html. So we have access to posts and title
 
@@ -108,6 +94,56 @@ def account():
         form.email.data = current_user.email
     image_file = url_for("static", filename="profile_pics/" + current_user.image_file)
     return render_template("account.html", title="Account", image_file=image_file, form=form)
+
+@app.route("/post/new", methods=["GET", "POST"])
+@login_required
+def new_post():
+    form = PostForm()
+    if form.validate_on_submit():
+        post = Post(title = form.title.data, content = form.content.data, author=current_user) # Use author backreference instead of setting user id. Could do either. Cleaner this way
+        db.session.add(post)
+        db.session.commit() 
+        flash("Your post has been created!", "success")
+        return redirect(url_for("home"))
+    return render_template("create_post.html", title="New Post", form=form, legend="New Post")
+
+# Flask gives us the ability to add variables in our routes. Here, we create route where id of post is part of route
+@app.route("/post/<int:post_id>")
+def post(post_id):
+    post = Post.query.get_or_404(post_id)
+    return render_template("post.html", title=post.title, post=post)
+
+@app.route("/post/<int:post_id>/update", methods=["GET", "POST"])
+@login_required
+def update_post(post_id):
+    post = Post.query.get_or_404(post_id)
+    if post.author != current_user:
+        abort(403) # HTTP response for forbidden route
+    form = PostForm()
+    
+    # For a POST:
+    if form.validate_on_submit():
+        post.title = form.title.data
+        post.content = form.content.data
+        db.session.commit() # No need to do db.session.add since they're already in database. Just update
+        flash("Your post has been updated!", "success")
+        return redirect(url_for("post", post_id=post.id))
+    elif request.method == "GET":
+        form.title.data = post.title
+        form.content.data = post.content
+    return render_template("create_post.html", title="Update Post", form=form, legend="Update Post")
+    
+@app.route("/post/<int:post_id>/delete", methods=["POST"])
+@login_required
+def delete_post(post_id):
+    post = Post.query.get_or_404(post_id)
+    if post.author != current_user:
+        abort(403) # HTTP response for forbidden route
+    db.session.delete(post)
+    db.session.commit()
+    flash("Your post has been deleted!", "success")
+    return redirect(url_for("home"))
+    
 
 # Before we run app, we need to set environment variable to file we want to be our flask application. Here, export FLASK_APP=flask_blog.py
 # localhost = 127.0.0.1

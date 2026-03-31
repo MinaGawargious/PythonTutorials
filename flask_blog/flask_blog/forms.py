@@ -1,7 +1,7 @@
 # Forms and User Input are so common, we don't have to reinvent the wheel. WT-Forms is available for use
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed # Allow uploading files. FileAllowed is a validator to choose which files are allowed
-from wtforms import StringField, PasswordField, SubmitField, BooleanField
+from wtforms import StringField, PasswordField, SubmitField, BooleanField, TextAreaField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
 from flask_blog.models import User
 from flask_login import current_user
@@ -58,3 +58,8 @@ class UpdateAccountForm(FlaskForm):
             user = User.query.filter_by(email=email.data).first()
             if user:
                 raise ValidationError("That email is taken. Please choose a different one")
+            
+class PostForm(FlaskForm):
+    title = StringField("Title", validators=[DataRequired()])
+    content = TextAreaField("Content", validators=[DataRequired()])
+    submit = SubmitField("Post")
